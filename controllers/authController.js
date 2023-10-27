@@ -73,3 +73,44 @@ exports.getAllUsers = async (req, res) => {
     res.status(500).json({ error: 'Gagal mengambil pengguna' });
   }
 };
+
+exports.updateUsername = async (req, res) => {
+  const { IDUser } = req.params; 
+  const { newUsername } = req.body; 
+
+  try {
+    const user = await User.findByPk(IDUser);
+
+    if (!user) {
+      return res.status(404).json({ error: 'Pengguna tidak ditemukan' });
+    }
+
+    user.Username = newUsername; // Setel username baru
+
+    await user.save(); // Simpan perubahan ke dalam database
+
+    res.json({ message: 'Username berhasil diperbarui' });
+  } catch (error) {
+    console.error('Gagal memperbarui username pengguna: ' + error);
+    res.status(500).json({ error: 'Gagal memperbarui username pengguna' });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  const { IDUser } = req.params; // Ambil ID pengguna dari parameter rute
+
+  try {
+    const user = await User.findByPk(IDUser);
+
+    if (!user) {
+      return res.status(404).json({ error: 'Pengguna tidak ditemukan' });
+    }
+
+    await user.destroy(); // Hapus pengguna dari database
+
+    res.json({ message: 'Pengguna berhasil dihapus' });
+  } catch (error) {
+    console.error('Gagal menghapus pengguna: ' + error);
+    res.status(500).json({ error: 'Gagal menghapus pengguna' });
+  }
+};
