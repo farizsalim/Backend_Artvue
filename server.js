@@ -14,6 +14,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const authRoutes = require('./routes/authRoutes');
 app.use('/auth', authRoutes);
+const router = require('./routes/routes');
+app.use(router)
+
 
 //Kalau pake Mysql2
 // db.connect((err) => {
