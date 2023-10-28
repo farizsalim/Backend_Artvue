@@ -3,7 +3,7 @@ const db = require('../dbconfig');
 const {User} = require('../models/User')
 
 exports.register = async (req, res) => {
-  const { fullname, email, password, username } = req.body;
+  const { fullname, email, password, username, gender } = req.body;
 
   try {
     const existingUser = await User.findOne({ 
@@ -17,11 +17,15 @@ exports.register = async (req, res) => {
 
     const hashedPassword = bcrypt.hashSync(password, 10);
 
+    const defaultProfilePicture = './public/image/default.png';
+
     const newUser = await User.create({
       FullName: fullname,
       Email: email,
       Password: hashedPassword,
       Username: username,
+      Gender: gender,
+      ProfilePicture: defaultProfilePicture,
     });
 
     res.json({ message: 'Registrasi berhasil' });
@@ -30,6 +34,64 @@ exports.register = async (req, res) => {
     res.status(500).json({ error: 'Gagal melakukan registrasi' });
   }
 };
+
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.findAll();
+    
+    if (!users || users.length === 0) {
+      return res.status(404).json({ error: 'Tidak ada pengguna yang ditemukan' });
+    }
+    
+    res.json(users);
+  } catch (error) {
+    console.error('Gagal mengambil pengguna: ' + error);
+    res.status(500).json({ error: 'Gagal mengambil pengguna' });
+  }
+};
+
+exports.updateUsername = async (req, res) => {
+  const { IDUser } = req.params; 
+  const { newUsername } = req.body; 
+  
+  try {
+    const user = await User.findByPk(IDUser);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'Pengguna tidak ditemukan' });
+    }
+    
+    user.Username = newUsername; // Setel username baru
+    
+    await user.save(); // Simpan perubahan ke dalam database
+    
+    res.json({ message: 'Username berhasil diperbarui' });
+  } catch (error) {
+    console.error('Gagal memperbarui username pengguna: ' + error);
+    res.status(500).json({ error: 'Gagal memperbarui username pengguna' });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  const { IDUser } = req.params; // Ambil ID pengguna dari parameter rute
+  
+  try {
+    const user = await User.findByPk(IDUser);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'Pengguna tidak ditemukan' });
+    }
+    
+    await user.destroy(); // Hapus pengguna dari database
+    
+    res.json({ message: 'Pengguna berhasil dihapus' });
+  } catch (error) {
+    console.error('Gagal menghapus pengguna: ' + error);
+    res.status(500).json({ error: 'Gagal menghapus pengguna' });
+  }
+};
+
 
 /*Kalau Pakai mysql2*/
 // if (!fullname || !email || !password || !username) {
@@ -58,59 +120,3 @@ exports.register = async (req, res) => {
 //     res.json({ message: 'Registrasi berhasil' });
 //   });
 // });
-
-exports.getAllUsers = async (req, res) => {
-  try {
-    const users = await User.findAll();
-
-    if (!users || users.length === 0) {
-      return res.status(404).json({ error: 'Tidak ada pengguna yang ditemukan' });
-    }
-
-    res.json(users);
-  } catch (error) {
-    console.error('Gagal mengambil pengguna: ' + error);
-    res.status(500).json({ error: 'Gagal mengambil pengguna' });
-  }
-};
-
-exports.updateUsername = async (req, res) => {
-  const { IDUser } = req.params; 
-  const { newUsername } = req.body; 
-
-  try {
-    const user = await User.findByPk(IDUser);
-
-    if (!user) {
-      return res.status(404).json({ error: 'Pengguna tidak ditemukan' });
-    }
-
-    user.Username = newUsername; // Setel username baru
-
-    await user.save(); // Simpan perubahan ke dalam database
-
-    res.json({ message: 'Username berhasil diperbarui' });
-  } catch (error) {
-    console.error('Gagal memperbarui username pengguna: ' + error);
-    res.status(500).json({ error: 'Gagal memperbarui username pengguna' });
-  }
-};
-
-exports.deleteUser = async (req, res) => {
-  const { IDUser } = req.params; // Ambil ID pengguna dari parameter rute
-
-  try {
-    const user = await User.findByPk(IDUser);
-
-    if (!user) {
-      return res.status(404).json({ error: 'Pengguna tidak ditemukan' });
-    }
-
-    await user.destroy(); // Hapus pengguna dari database
-
-    res.json({ message: 'Pengguna berhasil dihapus' });
-  } catch (error) {
-    console.error('Gagal menghapus pengguna: ' + error);
-    res.status(500).json({ error: 'Gagal menghapus pengguna' });
-  }
-};

@@ -19,6 +19,12 @@ const User = db.define('users', {
     Username: {
       type: DataTypes.STRING,
     },
+    Gender: {
+      type: DataTypes.STRING,
+    },
+    ProfilePicture: {
+      type: DataTypes.STRING,
+    },
 });
 
 User.sync();
