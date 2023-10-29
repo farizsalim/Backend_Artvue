@@ -25,6 +25,11 @@ const User = db.define('users', {
     ProfilePicture: {
       type: DataTypes.STRING,
     },
+    PhoneNumber: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
 });
 
 User.sync();

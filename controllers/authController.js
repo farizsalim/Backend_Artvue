@@ -3,7 +3,7 @@ const db = require('../dbconfig');
 const {User} = require('../models/User')
 
 exports.register = async (req, res) => {
-  const { fullname, email, password, username, gender } = req.body;
+  const { fullname, email, password, username, gender, phoneNumber } = req.body;
 
   try {
     const existingUser = await User.findOne({ 
@@ -25,6 +25,7 @@ exports.register = async (req, res) => {
       Password: hashedPassword,
       Username: username,
       Gender: gender,
+      PhoneNumber: phoneNumber,
       ProfilePicture: defaultProfilePicture,
     });
 
@@ -62,9 +63,9 @@ exports.updateUsername = async (req, res) => {
       return res.status(404).json({ error: 'Pengguna tidak ditemukan' });
     }
     
-    user.Username = newUsername; // Setel username baru
+    user.Username = newUsername;
     
-    await user.save(); // Simpan perubahan ke dalam database
+    await user.save();
     
     res.json({ message: 'Username berhasil diperbarui' });
   } catch (error) {
@@ -74,7 +75,7 @@ exports.updateUsername = async (req, res) => {
 };
 
 exports.deleteUser = async (req, res) => {
-  const { IDUser } = req.params; // Ambil ID pengguna dari parameter rute
+  const { IDUser } = req.params;
   
   try {
     const user = await User.findByPk(IDUser);
@@ -83,7 +84,7 @@ exports.deleteUser = async (req, res) => {
       return res.status(404).json({ error: 'Pengguna tidak ditemukan' });
     }
     
-    await user.destroy(); // Hapus pengguna dari database
+    await user.destroy();
     
     res.json({ message: 'Pengguna berhasil dihapus' });
   } catch (error) {
@@ -91,32 +92,3 @@ exports.deleteUser = async (req, res) => {
     res.status(500).json({ error: 'Gagal menghapus pengguna' });
   }
 };
-
-
-/*Kalau Pakai mysql2*/
-// if (!fullname || !email || !password || !username) {
-//   return res.status(400).json({ error: 'Nama lengkap, email, kata sandi, dan username wajib diisi' });
-// }
-
-// const query = 'SELECT * FROM Users WHERE Email = ?';
-// db.query(query, [email], (err, results) => {
-//   if (err) {
-//     console.error('Gagal memeriksa pengguna terdaftar: ' + err);
-//     return res.status(500).json({ error: 'Gagal memeriksa pengguna terdaftar' });
-//   }
-
-//   if (results.length > 0) {
-//     return res.status(400).json({ error: 'Pengguna dengan alamat email tersebut sudah terdaftar' });
-//   }
-
-//   const hashedPassword = bcrypt.hashSync(password, 10);
-
-//   const insertQuery = 'INSERT INTO Users (FullName, Email, Password, Username) VALUES (?, ?, ?, ?)';
-//   db.query(insertQuery, [fullname, email, hashedPassword, username], (insertErr, insertResults) => {
-//     if (insertErr) {
-//       console.error('Gagal menambahkan pengguna ke database: ' + insertErr);
-//       return res.status(500).json({ error: 'Gagal menambahkan pengguna' });
-//     }
-//     res.json({ message: 'Registrasi berhasil' });
-//   });
-// });
